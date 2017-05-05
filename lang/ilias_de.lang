@@ -157,6 +157,8 @@ publication_usage_type_thumbnail#:#Vorschaubild
 publication_usage_update#:#Aktualisieren
 publication_usage_usage_id#:#Nutzung
 publication_usage_type_thumbnail_fallback_2#:#Thumbnail Fallback 2
+rep_robj_xoct_publication_usage_type_download#:#Download
+rep_robj_xoct_publication_usage_type_thumbnail_fallback#:#Fallback Vorschaubild
 series_accept_eula#:#Ich akzeptiere die Nutzungsvereinbarungen
 series_alert_eula#:#Die Nutzungsvereinbarung muss akzeptiert werden
 series_cancel#:#Abbrechen
