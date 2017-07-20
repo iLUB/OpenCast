@@ -67,6 +67,11 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$te->setRequired(true);
 		$this->addItem($te);
 
+		$te = new ilTextInputGUI($this->parent_gui->txt(xoctConf::F_EDITOR_LINK), xoctConf::F_EDITOR_LINK);
+		$te->setInfo($this->parent_gui->txt(xoctConf::F_EDITOR_LINK. '_info'));
+		$te->setRequired(true);
+		$this->addItem($te);
+
 		$te = new ilSelectInputGUI($this->parent_gui->txt(xoctConf::F_CURL_DEBUG_LEVEL), xoctConf::F_CURL_DEBUG_LEVEL);
 		$te->setInfo($this->parent_gui->txt(xoctConf::F_CURL_DEBUG_LEVEL. '_info'));
 		$te->setOptions(array(
@@ -79,11 +84,11 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$this->addItem($te);
 
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_ACTIVATE_CACHE), xoctConf::F_ACTIVATE_CACHE);
-		$te->setInfo($this->parent_gui->txt(xoctConf::F_ACTIVATE_CACHE. '_info'));
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_ACTIVATE_CACHE. '_info'));
 		$this->addItem($cb);
 
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_USE_MODALS), xoctConf::F_USE_MODALS);
-		$te->setInfo($this->parent_gui->txt(xoctConf::F_USE_MODALS. '_info'));
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_USE_MODALS. '_info'));
 		$this->addItem($cb);
 
 		$te = new ilTextInputGUI($this->parent_gui->txt(xoctConf::F_WORKFLOW), xoctConf::F_WORKFLOW);
@@ -134,29 +139,29 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 
 		$te = new ilTextAreaInputGUI($this->parent_gui->txt(xoctConf::F_LICENSE_INFO), xoctConf::F_LICENSE_INFO);
 		$te->setRequired(true);
-		$te->setUseRte(true);
-//		$te->setRteTags(array(
-//			'p',
-//			'a',
-//			'br',
+//		$te->setUseRte(true);
+////		$te->setRteTags(array(
+////			'p',
+////			'a',
+////			'br',
+////		));
+//		$te->usePurifier(true);
+//		$te->disableButtons(array(
+//			'charmap',
+//			'undo',
+//			'redo',
+//			'justifyleft',
+//			'justifycenter',
+//			'justifyright',
+//			'justifyfull',
+//			'anchor',
+//			'fullscreen',
+//			'cut',
+//			'copy',
+//			'paste',
+//			'pastetext',
+//			'formatselect',
 //		));
-		$te->usePurifier(true);
-		$te->disableButtons(array(
-			'charmap',
-			'undo',
-			'redo',
-			'justifyleft',
-			'justifycenter',
-			'justifyright',
-			'justifyfull',
-			'anchor',
-			'fullscreen',
-			'cut',
-			'copy',
-			'paste',
-			'pastetext',
-			'formatselect',
-		));
 
 		$te->setRows(5);
 		$this->addItem($te);

@@ -69,10 +69,12 @@ var xoctGroupParticipant = {
         };
 
         this.filter_container.keyup(function () {
-            if (!self.filtering) {
-                self.filter_container.after('<span class="input-group-btn"><button class="btn btn-default" id="xoct_filter" type="button"><span class="glyphicon glyphicon-remove"></span> </button></span>');
-            }
             self.filter($(this).val());
+            if (self.filtering && !$('#xoct_filter').length) {
+                self.filter_container.after('<span class="input-group-btn"><button class="btn btn-default" id="xoct_filter" type="button"><span class="glyphicon glyphicon-remove"></span> </button></span>');
+            } else if (!self.filtering) {
+                $('#xoct_filter').remove();
+            }
         });
 
 
@@ -143,7 +145,9 @@ var xoctGroupParticipant = {
                 self.container_available.append(
                     '<li class="list-group-item xoct_participant_available" data-user-id="' + data[i].user_id + '">'
                     //+'<img height=25px" width="25px" src="./templates/default/images/no_photo_xsmall.jpg" class="img-circle" alt="Circular Image"> '
+                    + '<div style="margin-right:30px;">'
                     + data[i].display_name + ''
+                    + '</div>'
                     + '<button class="btn btn-primary xoct_add_user pull-right"><span class="glyphicon glyphicon-plus"></span></button>'
                     + '</li>');
             }
@@ -166,7 +170,9 @@ var xoctGroupParticipant = {
             for (var i in data) {
                 self.container_per_group.append('<li class="list-group-item" data-id="'
                     + data[i].id
-                    + '">' + data[i].display_name + ''
+                    + '"><div style="margin-right:30px;">'
+                    + data[i].display_name
+                    + '</div>'
                     + '<button class="btn btn-default xoct_remove_user pull-right"><span class="glyphicon glyphicon-minus"></span></button></li>');
             }
             if (!data || data.length == 0) {
