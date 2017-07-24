@@ -7,7 +7,6 @@ if (count($_SERVER['argv']) < 5) {
 $mapping_data = file_get_contents($_SERVER['argv'][4]);
 chdir(substr(__FILE__, 0, strpos(__FILE__, '/Customizing')));
 
-echo "initializing ILIAS ... ";
 require_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/classes/class.xoct.php';
 xoct::initILIAS();
 echo "OK\n";
