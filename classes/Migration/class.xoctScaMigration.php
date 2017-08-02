@@ -244,7 +244,6 @@ class xoctScaMigration {
             if($parent_obj) {
                 $roles = ($parent_obj instanceof ilObjCourse) ? $parent_obj->getDefaultCourseRoles() : $parent_obj->getDefaultGroupRoles();
 
-
                 foreach ($roles as $role_id) {
                     $role_ops = $this->rbac_review->getRoleOperationsOnObject($role_id, $rec['ref_id']);
 
@@ -258,7 +257,6 @@ class xoctScaMigration {
                     $this->rbac_admin->grantPermission($role_id, $role_ops, $ilObjOpenCast->getRefId());
                 }
             }
-
 
 
 
