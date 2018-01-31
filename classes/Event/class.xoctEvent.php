@@ -20,24 +20,31 @@ class xoctEvent extends xoctObject {
 	public static $NO_METADATA = false;
 	const STATE_SUCCEEDED = 'SUCCEEDED';
 	const STATE_OFFLINE = 'OFFLINE';
+	const STATE_SCHEDULED = 'SCHEDULED';
+	const STATE_SCHEDULED_OFFLINE = 'SCHEDULED_OFFLINE';
 	const STATE_INSTANTIATED = 'INSTANTIATED';
 	const STATE_ENCODING = 'RUNNING';
 	const STATE_NOT_PUBLISHED = 'NOT_PUBLISHED';
 	const STATE_FAILED = 'FAILED';
 	const NO_PREVIEW = './Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/templates/images/no_preview.png';
+	const THUMBNAIL_SCHEDULED = './Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/templates/images/thumbnail_scheduled.svg';
 	const PRESENTER_SEP = ';';
 	const TZ_EUROPE_ZURICH = 'Europe/Zurich';
 	const TZ_UTC = 'UTC';
 	/**
 	 * @var array
+	 *
+	 * used for colouring
 	 */
 	public static $state_mapping = array(
-		xoctEvent::STATE_SUCCEEDED     => 'success',
-		xoctEvent::STATE_INSTANTIATED  => 'info',
-		xoctEvent::STATE_ENCODING      => 'info',
-		xoctEvent::STATE_NOT_PUBLISHED => 'info',
-		xoctEvent::STATE_FAILED        => 'danger',
-		xoctEvent::STATE_OFFLINE       => 'info',
+		xoctEvent::STATE_SUCCEEDED          => 'success',
+		xoctEvent::STATE_INSTANTIATED       => 'info',
+		xoctEvent::STATE_ENCODING           => 'info',
+		xoctEvent::STATE_NOT_PUBLISHED      => 'info',
+		xoctEvent::STATE_SCHEDULED          => 'scheduled',
+		xoctEvent::STATE_SCHEDULED_OFFLINE  => 'scheduled',
+		xoctEvent::STATE_FAILED             => 'danger',
+		xoctEvent::STATE_OFFLINE            => 'info',
 	);
 	/**
 	 * @var string
@@ -139,6 +146,8 @@ class xoctEvent extends xoctObject {
 			'location'         => $this->getLocation(),
 			'created'          => $this->getCreated()->format(DATE_ATOM),
 			'created_unix'     => $this->getCreated()->format('U'),
+			'start'            => $this->getStart()->format(DATE_ATOM),
+			'start_unix'       => $this->getStart()->format('U'),
 			'owner_username'   => $this->getOwnerUsername(),
 			'processing_state' => $this->getProcessingState(),
 			'object'           => $this,
@@ -303,13 +312,6 @@ class xoctEvent extends xoctObject {
 		$data = array();
 
 		$this->setMetadata(xoctMetadata::getSet(xoctMetadata::FLAVOR_DUBLINCORE_EPISODES));
-
-		$created = $this->getCreated();
-		if (!$created instanceof DateTime) {
-			$created = $this->getDefaultDateTimeObject();
-		}
-		$this->setCreated($created);
-		$this->setStartTime($created);
 		$this->setOwner(xoctUser::getInstance($ilUser));
 		$this->updateMetadataFromFields();
 
@@ -459,6 +461,11 @@ class xoctEvent extends xoctObject {
 	 * @return string
 	 */
 	public function getThumbnailUrl() {
+		if ($this->getProcessingState() == self::STATE_SCHEDULED || $this->getProcessingState() == self::STATE_SCHEDULED_OFFLINE) {
+			$this->thumbnail_url = self::THUMBNAIL_SCHEDULED;
+			return $this->thumbnail_url;
+		}
+
 		$possible_publications = array(
 			xoctPublicationUsage::USAGE_THUMBNAIL,
 			xoctPublicationUsage::USAGE_THUMBNAIL_FALLBACK,
@@ -573,8 +580,10 @@ class xoctEvent extends xoctObject {
 		$medias = array();
 		$attachments = array();
 		foreach ($this->getPublications() as $publication) {
-			$medias = array_merge($medias, $publication->getMedia());
-			$attachments = array_merge($attachments, $publication->getAttachments());
+			if ($publication->getChannel() == $xoctPublicationUsage->getChannel()) {
+				$medias = array_merge($medias, $publication->getMedia());
+				$attachments = array_merge($attachments, $publication->getAttachments());
+			}
 		}
 		switch ($xoctPublicationUsage->getMdType()) {
 			case xoctPublicationUsage::MD_TYPE_ATTACHMENT:
@@ -671,15 +680,15 @@ class xoctEvent extends xoctObject {
 					if (($conf_internal_player && !in_array($publication_api->getChannel(),$this->publication_status))
 						|| (!$conf_internal_player && !in_array($publication_player->getChannel(),$this->publication_status)))
 					{
-						$this->setProcessingState(xoctEvent::STATE_NOT_PUBLISHED);
+						$this->setProcessingState(self::STATE_NOT_PUBLISHED);
 					}
 				}
 				break;
 			case '': // FIX: OpenCast delivers sometimes a empty state. this patch will be removed after fix on OpenCast
 				if (!$this->getXoctEventAdditions()->getIsOnline()) {
-					$this->setProcessingState(self::STATE_OFFLINE);
+					$this->setProcessingState(self::STATE_SCHEDULED_OFFLINE);
 				} else {
-					$this->setProcessingState(xoctEvent::STATE_SUCCEEDED);
+					$this->setProcessingState(self::STATE_SCHEDULED);
 				}
 				break;
 		}
@@ -705,7 +714,7 @@ class xoctEvent extends xoctObject {
 	 */
 	protected $creator;
 	/**
-	 * @var Array
+	 * @var array
 	 */
 	protected $contributors;
 	/**
@@ -733,13 +742,17 @@ class xoctEvent extends xoctObject {
 	 */
 	protected $publication_status;
 	/**
-	 * @var array
+	 * @var String
 	 */
 	protected $processing_state;
 	/**
 	 * @var DateTime
 	 */
 	protected $start_time;
+	/**
+	 * @var DateTime
+	 */
+	protected $start;
 	/**
 	 * @var array
 	 */
@@ -773,6 +786,21 @@ class xoctEvent extends xoctObject {
 	 */
 	protected $source = '';
 
+
+	/**
+	 * @return DateTime
+	 */
+	public function getStart() {
+		return ($this->start instanceof DateTime) ? $this->start : $this->getDefaultDateTimeObject($this->start);
+	}
+
+
+	/**
+	 * @param DateTime $start
+	 */
+	public function setStart($start) {
+		$this->start = $start;
+	}
 
 	/**
 	 * @return string
@@ -839,7 +867,7 @@ class xoctEvent extends xoctObject {
 
 
 	/**
-	 * @return Array
+	 * @return array
 	 */
 	public function getContributors() {
 		return $this->contributors;
@@ -847,7 +875,7 @@ class xoctEvent extends xoctObject {
 
 
 	/**
-	 * @param Array $contributors
+	 * @param array $contributors
 	 */
 	public function setContributors($contributors) {
 		$this->contributors = $contributors;
@@ -951,7 +979,7 @@ class xoctEvent extends xoctObject {
 
 
 	/**
-	 * @return array
+	 * @return String
 	 */
 	public function getProcessingState() {
 		$this->initProcessingState();
@@ -961,7 +989,7 @@ class xoctEvent extends xoctObject {
 
 
 	/**
-	 * @param array $processing_state
+	 * @param String $processing_state
 	 */
 	public function setProcessingState($processing_state) {
 		$this->processing_state = $processing_state;
@@ -1149,18 +1177,16 @@ class xoctEvent extends xoctObject {
 		$is_part_of = $this->getMetadata()->getField('isPartOf');
 		$is_part_of->setValue($this->getSeriesIdentifier());
 
+		$start = $this->getStart()->setTimezone(new DateTimeZone(self::TZ_UTC));
+
 		$startDate = $this->getMetadata()->getField('startDate');
-		$startDate->setValue(date('Y-m-d'));
+		$startDate->setValue($start->format('Y-m-d'));
 
 		$startTime = $this->getMetadata()->getField('startTime');
-		$startTime->setValue(date('H:i'));
+		$startTime->setValue($start->format('H:i'));
 
 		$source = $this->getMetadata()->getField('source');
 		$source->setValue($this->getSource());
-
-		$created = $this->getMetadata()->getField('created');
-		$dateTime = $this->getCreated()->setTimezone(new DateTimeZone(self::TZ_UTC));
-		$created->setValue($dateTime->format("Y-m-d\TH:i:s\Z")); //Timezone "Z" is equal to "UTC"
 
 		$presenter = $this->getMetadata()->getField('creator');
 		$presenter->setValue(explode(self::PRESENTER_SEP, $this->getPresenter()));

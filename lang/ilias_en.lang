@@ -3,13 +3,14 @@ admin_import#:#Import Settings
 common_actions#:#Actions
 config_activate_cache#:#Activate Cache
 config_api_base#:#Api-Base-URL
+config_audio_allowed_info#:#Audio Files
 config_cancel#:#Cancel
 config_curl#:#cURL
 config_curl_debug_level#:#Debug-Level
 config_curl_password#:#API-Password
 config_curl_username#:#API-Username
-config_editor_link#:#Link to SWITCHcast Video Editor
-config_editor_link_info#:#The placeholder &#123event_id} can be used. E.g.: https://myswitchcast.com/external-url/events/&#123event_id}/editor
+config_editor_link#:#Link to OpenCast Video Editor
+config_editor_link_info#:#The placeholder &#123event_id} can be used. E.g.: https://myopencast.com/external-url/events/&#123event_id}/editor
 config_eula#:#EULA
 config_licenses#:#Licenses
 config_licenses_info#:#Add new lines with URL#Name
@@ -20,7 +21,7 @@ config_log_level_2#:#MEDIUM
 config_log_level_3#:#HIGH
 config_log_level_4#:#ULTRA
 config_msg_success#:#Saved
-config_roles#:#SWITCHcast Roles
+config_roles#:#OpenCast Roles
 config_role_anonymous#:#Anonymous
 config_role_external_application_member#:#External Application Member
 config_role_ext_application#:#External Application
@@ -37,34 +38,35 @@ config_use_modals#:#Open Player in Modal
 config_workflow#:#Workflow-ID
 config_advanced#:#Advanced
 config_security#:#Security
-config_security_info#:#Improves the security by using SWITCHcast "Stream Security". Only activate, if SWITCHcast is configured to use it.
+config_security_info#:#Improves the security by using OpenCasts "Stream Security". Only activate, if OpenCast is configured to use it.
 config_sign_annotation_links#:#Sign Annotation Link
 config_sign_player_links#:#Sign Player Link
 config_sign_download_links#:#Sign Download Link
 config_sign_thumbnail_links#:#Sign Thumbnail Link
 config_request_comb_lv#:#Request Combination Level
-config_request_comb_lv_info#:#Defines the way the plugin is sending requests to fetch events from SWITCHcast (many small/few large requests). This has no impact on the functionality, yet it affects the performance.
-config_groups#:#SWITCHcast Groups
+config_request_comb_lv_info#:#Defines the way the plugin is sending requests to fetch events from OpenCast (many small/few large requests). This has no impact on the functionality, yet it affects the performance.
+config_groups#:#Opencast Groups
 config_group_producers#:#ILIAS Producers
 config_std_roles#:#Standard roles
 config_std_roles_info#:#These roles are given read and write permissions when creating a series or an event.
-config_api_base_info#:#e.g.: https://myswitchcast.com/api
-config_curl_username_info#:#User account in SWITCHcast which will be used to communicate over the API (needs enough permissions in OC).
+config_api_base_info#:#e.g.: https://myopencast.com/api
+config_audio_allowed_info#:#Allows the upload of audio files.
+config_curl_username_info#:#User account in OpenCast which will be used to communicate over the API (needs enough permissions in OC).
 config_curl_password_info#:#Password for above account.
 config_curl_debug_level_info#:#Level of detail for log entries.
 config_activate_cache_info#:#Improves the loading time for event lists by storing events locally. Can lead to temporarily corrupt metadata.
 config_use_modals_info#:#When active: the video player will not be opened in a seperate window but in a overlaying "Modal" window.
-config_workflow_info#:#ID of the workflow which will be executed in SWITCHcast after uploading an event.
-config_user_mapping_info#:#Userfield in ILIAS which shall be used to identify the user in SWITCHcast.
-config_group_producers_info#:#Users with the permission "Edit Videos" will be assigned to this SWITCHcast group to obtain access to SWITCHcast.
-config_role_user_prefix_info#:#User specific role in SWITCHcast. Is used to grant the user permission on a series in SWITCHcast. Example: ROLE_USER_&#123IDENTIFIER}
-config_role_ivt_external_prefix_info#:#Indicates the owner of an event. This rules doesn't have to exist in SWITCHcast. Example: ROLE_OWNER_&#123IDENTIFIER}
+config_workflow_info#:#ID of the workflow which will be executed in OpenCast after uploading an event.
+config_user_mapping_info#:#Userfield in ILIAS which shall be used to identify the user in OpenCast.
+config_group_producers_info#:#Users with the permission "Edit Videos" will be assigned to this OpenCast group to obtain access to OpenCast. 
+config_role_user_prefix_info#:#User specific role in OpenCast. Is used to grant the user permission on a series in OpenCast. Example: ROLE_USER_&#123IDENTIFIER}
+config_role_ivt_external_prefix_info#:#Indicates the owner of an event. This rules doesn't have to exist in OpenCast. Example: ROLE_OWNER_&#123IDENTIFIER}
 config_role_ivt_email_prefix_info#:#ROLE_OWNER_EMAIL_&#123IDENTIFIER}
 config_identifier_to_uppercase#:#User mapping in uppercase
 config_no_metadata#:#Without Metadata
 config_no_metadata_info#:#The metadata don't need to be fetched seperately in the latest API versions, therefore this option will improve the performance. However, this will lead to an error in previous versions.
 config_internal_player#:#Internal Video-Player
-config_internal_player_info#:#When active, the plugin will use an own video player instead of redirecting to SWITCHcast.
+config_internal_player_info#:#When active, the plugin will use an own video player instead of redirecting to OpenCast.
 event_add_new#:#Add Event
 event_annotate#:#Annotate
 event_auto_publish#:#Auto publish
@@ -77,13 +79,14 @@ event_creator#:#Creator
 event_cut#:#Cut Event
 event_date#:#Date
 event_delete#:#Delete Event
-event_delete_confirm#:#This will delete the Event in ILIAS and in SWITCHcast. Do you want to proceed?
+event_delete_confirm#:#This will delete the Event in ILIAS and in OpenCast. Do you want to proceed?
 event_description#:#Subtitle
 event_download#:#Download
 event_duration#:#Duration
 event_edit#:#Edit Metadata
 event_edit_owner#:#Edit Owner
-event_file_presenter#:#File
+event_file_presenter#:#Video File
+event_file_presenter_w_audio#:#Video/Audio File
 event_identifier#:#ID
 event_invite_others#:#Grant access rights
 event_location#:#Recording Station
@@ -101,17 +104,20 @@ event_preview#:#Preview
 event_processing_state#:#State
 event_recording_station#:#Recording Station
 event_start_time#:#Start
+event_start#:#Start
 event_state_failed#:#Publication failed. Please contact the support.
 event_state_instantiated#:#Converting not yet started, not yet visible to students
 event_state_not_published#:#Not published, not yet visible to students
 event_state_running#:#Converting, not yet visible to students
 event_state_offline#:#Offline, not visible to students
+event_state_scheduled#:#Scheduled Event, not visible to students. Please DO NOT delete.
+event_state_scheduled_offline#:#Scheduled Event (Offline), not visible to students. Please DO NOT delete.
 event_title#:#Title
 event_update#:#Save
 event_updateOwner#:#Update owner
 event_view#:#View
 event_online#:#Event online
-event_online_info#:#An Event can be set offline on this ILIAS-Installation. The Event on SWITCHcast ist not affected
+event_online_info#:#An Event can be set offline on this ILIAS-Installation. The Event on OpenCast ist not affected
 event_upload_select#:#Select file
 event_upload_clear#:#Reset
 event_supported_filetypes#:#Supported Filetypes
@@ -120,7 +126,7 @@ event_created_unix#:#Date
 event_event_created_unix#:#Date
 event_event_event_created_unix#:#Date
 event_set_online#:#Set online
-event_delete_confirm_w_duplicates#:#This will delete the Event in SWITCHcast and in every linked series in ILIAS. Do you want to proceed?
+event_delete_confirm_w_duplicates#:#This will delete the Event in OpenCast and in every linked series in ILIAS. Do you want to proceed?
 event_state_failed_owner#:#Publication failed. Please contact the support.
 event_state_running_owner#:#Converting, not yet visible to other students
 groups_available_participants_header#:#Available Participants
@@ -140,8 +146,8 @@ group_select_group#:#Select Group
 invitations_back#:#Back
 invitations_header#:#Grant Access to Event
 invitations_none_available#:#None available
-obj_xoct#:#SWITCHcast Series
-objs_xoct#:#SWITCHcast Series
+obj_xoct#:#OpenCast
+objs_xoct#:#OpenCast
 perm_upload#:#Upload
 perm_edit_videos#:#Edit Videos
 publication_usage_add#:#Add
@@ -235,13 +241,13 @@ tab_migration#:#Migration
 upload_token_channel_id#:#Series-ID
 upload_token_daily_upload_token#:#Token
 upload_token_upload_token#:#Upload-Token
-xoct_new#:#Create SWITCHcast Series
+xoct_new#:#Create openCast-Series
 xoct_rep_robj_xoct_perm_upload#:#User can upload videos
 xoct_rep_robj_xoct_perm_edit_videos#:#User can edit videos
-xoct_visible#:#SWITCHcast object is visible
-xoct_read#:#User has read access to SWITCHcast and can watch videos
-xoct_write#:#User can edit setting of SWITCHcast object
-xoct_delete#:#User can move or delete SWITCHcast object
+xoct_visible#:#OpenCast object is visible
+xoct_read#:#User has read access to OpenCast and can watch videos
+xoct_write#:#User can edit setting of OpenCast object
+xoct_delete#:#User can move or delete OpenCast object
 xoct_edit_permission#:#User can change permission settings
 form_msg_select#:#Please select fist a Videofile
 form_msg_not_supported#:#Filetype is not supported
@@ -249,4 +255,4 @@ info_linked_items#:#Links
 info_linked_item#:#Link
 info_auto_publish_forced#:#The video will be published automatically, since you don't own the rights to publish it manually.
 msg_info_multiple_aftersave#:#This Series has several links in ILIAS. Uploads will appear in every linked series, too.
-msg_creation_failed#:#Objects of type "SWITCHcast" can only be created in courses or groups.
+msg_creation_failed#:#Objects of type "OpenCast" can only be created in courses or groups.
