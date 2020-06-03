@@ -90,10 +90,10 @@ class xoctEventTileGUI {
 			$xoctEvent = $this->events[$i];
 			$event_renderer = new xoctEventRenderer($xoctEvent, $this->xoctOpenCast);
 
-			$dropdown = $this->factory->dropdown()->standard($this->getActionButtons($xoctEvent));
+			$dropdown = $this->factory->dropdown()->standard($event_renderer->getActions());
 
 			$image = $this->factory->image()->standard(
-				$xoctEvent->getThumbnailUrl(),
+				$xoctEvent->publications()->getThumbnailUrl(),
 				"Thumbnail");
 
 			$tile_tpl = self::plugin()->template('default/tpl.event_tile.html');
@@ -198,26 +198,6 @@ class xoctEventTileGUI {
 		return $this->has_scheduled_events;
 	}
 
-    /**
-	 * @param xoctEvent $xoctEvent
-	 * @return array
-	 * @throws DICException
-	 */
-	protected function getActionButtons(xoctEvent $xoctEvent) {
-		$dropdown_items = [];
-		foreach ($xoctEvent->getActions($this->xoctOpenCast) as $key => $action) {
-			if (isset($action['onclick'])) {
-				$onclick = $action['onclick'];
-				$dropdown_items[] = $this->factory->button()->shy(self::plugin()->translate($action['lang_var'] ?: $key), $action['link'])
-					->withOnLoadCode(function ($id) use ($onclick) {
-						return "$('#$id').on('click', function(){{$onclick}});";
-				});
-			} else {
-				$dropdown_items[] = $this->factory->link()->standard(self::plugin()->translate($action['lang_var'] ?: $key), $action['link'])->withOpenInNewViewport((bool) $action['frame']);
-			}
-		}
-		return $dropdown_items;
-	}
 
     /**
 	 * @return string

@@ -1,12 +1,15 @@
 <?php
 
+use ILIAS\UI\Component\Modal\Modal;
 use srag\DIC\OpenCast\Exception\DICException;
 use srag\Plugins\Opencast\Chat\GUI\ChatHistoryGUI;
 use srag\Plugins\Opencast\Chat\Model\ChatroomAR;
 use srag\Plugins\Opencast\Model\API\Event\EventRepository;
 use srag\Plugins\Opencast\Model\API\Group\Group;
+use srag\Plugins\Opencast\Model\Config\Workflow\WorkflowRepository;
 use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\Opencast\UI\Input\Plupload;
+use srag\Plugins\Opencast\UI\Modal\EventModals;
 
 /**
  * Class xoctEventGUI
@@ -36,14 +39,21 @@ class xoctEventGUI extends xoctGUI {
 	const CMD_SWITCH_TO_TILES = 'switchToTiles';
 	const CMD_SHOW_CHAT_HISTORY = 'showChatHistory';
 	const CMD_CHANGE_TILE_LIMIT = 'changeTileLimit';
+    const CMD_REPUBLISH = 'republish';
+	const CMD_OPENCAST_STUDIO = 'opencaststudio';
+    const CMD_DOWNLOAD = 'download';
 
-	/**
+    /**
 	 * @var xoctOpenCast
 	 */
 	protected $xoctOpenCast;
+    /**
+     * @var EventModals
+     */
+    protected $modals;
 
 
-	/**
+    /**
 	 * @param xoctOpenCast $xoctOpenCast
 	 */
 	public function __construct(xoctOpenCast $xoctOpenCast = NULL) {
@@ -51,6 +61,11 @@ class xoctEventGUI extends xoctGUI {
 	}
 
 
+    /**
+     * @throws DICException
+     * @throws ilCtrlException
+     * @throws xoctException
+     */
     public function executeCommand()
     {
         $nextClass = self::dic()->ctrl()->getNextClass();
@@ -77,11 +92,12 @@ class xoctEventGUI extends xoctGUI {
 	 * @param $cmd
 	 */
 	protected function performCommand($cmd) {
-	    self::dic()->tabs()->activateTab(ilObjOpenCastGUI::TAB_EVENTS);
+        self::dic()->tabs()->activateTab(ilObjOpenCastGUI::TAB_EVENTS);
         self::dic()->mainTemplate()->addCss('./Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/templates/default/events.css');
         self::dic()->mainTemplate()->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/templates/default/events.js');	// init waiter
+        self::dic()->mainTemplate()->addCss(self::plugin()->getPluginObject()->getDirectory() . '/templates/default/reporting_modal.css');
 
-		switch ($cmd) {
+        switch ($cmd) {
 			case self::CMD_STANDARD:
 				$this->prepareContent();
 				break;
@@ -97,6 +113,12 @@ class xoctEventGUI extends xoctGUI {
 	protected function prepareContent() {
 		xoctWaiterGUI::initJS();
 		xoctWaiterGUI::addLinkOverlay('#rep_robj_xoct_event_clear_cache');
+        self::dic()->mainTemplate()->addJavascript("./src/UI/templates/js/Modal/modal.js");
+        self::dic()->mainTemplate()->addOnLoadCode('xoctEvent.init(\'' . json_encode([
+                'msg_link_copied' => self::plugin()->translate('msg_link_copied'),
+                'tooltip_copy_link' => self::plugin()->translate('tooltip_copy_link')
+            ]) . '\');');
+
 
 		// add "add" button
 		if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_ADD_EVENT)) {
@@ -112,6 +134,15 @@ class xoctEventGUI extends xoctGUI {
 			$b = ilLinkButton::getInstance();
 			$b->setCaption('rep_robj_xoct_event_schedule_new');
 			$b->setUrl(self::dic()->ctrl()->getLinkTarget($this, self::CMD_SCHEDULE));
+			$b->setPrimary(true);
+			self::dic()->toolbar()->addButtonInstance($b);
+		}
+
+		// add "Opencast Studio" button
+		if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_ADD_EVENT) && xoctConf::getConfig(xoctConf::F_STUDIO_ALLOWED)) {
+			$b = ilLinkButton::getInstance();
+			$b->setCaption('rep_robj_xoct_event_opencast_studio');
+			$b->setUrl(self::dic()->ctrl()->getLinkTarget($this, self::CMD_OPENCAST_STUDIO));
 			$b->setPrimary(true);
 			self::dic()->toolbar()->addButtonInstance($b);
 		}
@@ -138,7 +169,6 @@ class xoctEventGUI extends xoctGUI {
 			$b = ilButton::getInstance();
 			$b->setId('xoct_report_date_button');
 			$b->setCaption('rep_robj_xoct_event_report_date_modification');
-			$b->setOnClick("$('#xoct_report_date_modal').modal('show');");
 			$b->addCSSClass('hidden');
 
 			self::dic()->toolbar()->addButtonInstance($b);
@@ -173,7 +203,7 @@ class xoctEventGUI extends xoctGUI {
 					' for user with id ' . self::dic()->user()->getId());
 		}
 
-		self::dic()->mainTemplate()->setContent($this->getIntroTextHTML() . $html . $this->getModalsHTML());
+		self::dic()->mainTemplate()->setContent($this->getIntroTextHTML() . $html);
 	}
 
 	/**
@@ -215,7 +245,7 @@ class xoctEventGUI extends xoctGUI {
 	 * @throws DICException
 	 */
 	protected function initViewSwitcherHTML($active) {
-		if (xoct::isIlias54() && $this->xoctOpenCast->isViewChangeable()) {
+		if ($this->xoctOpenCast->isViewChangeable()) {
 			$f = self::dic()->ui()->factory();
 			$renderer = self::dic()->ui()->renderer();
 
@@ -311,12 +341,24 @@ class xoctEventGUI extends xoctGUI {
 	 * ajax call
 	 */
 	public function asyncGetTableGUI() {
-		$xoctEventTableGUI = new xoctEventTableGUI($this, self::CMD_STANDARD, $this->xoctOpenCast);
+        $modals_html = $this->getModalsHTML();
+        $xoctEventTableGUI = new xoctEventTableGUI($this, self::CMD_STANDARD, $this->xoctOpenCast);
         $html = $xoctEventTableGUI->getHTML();
         if ($xoctEventTableGUI->hasScheduledEvents()) {
-            $html .= "<script type='text/javascript'>$('#xoct_report_date_button').removeClass('hidden');</script>";
+            $signal = $this->getModals()->getReportDateModal()->getShowSignal()->getId();
+            $html .= "<script type='text/javascript'>
+                        $('#xoct_report_date_button').removeClass('hidden');
+                        $('#xoct_report_date_button').on('click', function(){
+                            $(this).trigger('$signal',
+							{
+								'id' : '$signal', 'event' : 'click',
+								'triggerer' : $(this),
+								'options' : JSON.parse('[]')
+							});
+                        });
+                    </script>";
         }
-        echo $html;
+        echo $html . $modals_html;
         exit();
 	}
 
@@ -326,9 +368,21 @@ class xoctEventGUI extends xoctGUI {
 	 */
 	public function asyncGetTilesGUI() {
 		$xoctEventTileGUI = new xoctEventTileGUI($this, $this->xoctOpenCast);
-        $html = $xoctEventTileGUI->getHTML();
+		$html = $this->getModalsHTML();
+        $html .= $xoctEventTileGUI->getHTML();
         if ($xoctEventTileGUI->hasScheduledEvents()) {
-            $html .= "<script type='text/javascript'>$('#xoct_report_date_button').removeClass('hidden');</script>";
+            $signal = $this->getModals()->getReportDateModal()->getShowSignal()->getId();
+            $html .= "<script type='text/javascript'>
+                        $('#xoct_report_date_button').removeClass('hidden');
+                        $('#xoct_report_date_button').on('click', function(){
+                            $(this).trigger('$signal',
+							{
+								'id' : '$signal', 'event' : 'click',
+								'triggerer' : $(this),
+								'options' : JSON.parse('[]')
+							});
+                        });
+                    </script>";
         }
         echo $html;
         exit();
@@ -430,9 +484,11 @@ class xoctEventGUI extends xoctGUI {
 		self::dic()->mainTemplate()->setContent($xoctEventFormGUI->getHTML());
 	}
 
-	/**
-	 *
-	 */
+    /**
+     * @throws DICException
+     * @throws ilDateTimeException
+     * @throws xoctException
+     */
 	protected function edit() {
 		/**
 		 * @var xoctEvent $xoctEvent
@@ -451,6 +507,18 @@ class xoctEventGUI extends xoctGUI {
 		self::dic()->mainTemplate()->setContent($xoctEventFormGUI->getHTML());
 	}
 
+
+	/**
+	 * 
+	 */
+	public function opencaststudio(){
+		$xoctSeries =  $this->xoctOpenCast->getSeriesIdentifier();
+		$base = rtrim(xoctConf::getConfig(xoctConf::F_API_BASE), "/");
+		$base = str_replace('/api', '', $base);
+		$studio_link = $base . '/studio' . '?upload.seriesId=' . $xoctSeries;
+		header('Location:' . $studio_link);
+	}
+		
 
 	/**
 	 *
@@ -485,13 +553,54 @@ class xoctEventGUI extends xoctGUI {
 		}
 
 		// redirect
-		$cutting_link = $xoctEvent->getCuttingLink();
+		$cutting_link = $xoctEvent->publications()->getCuttingLink();
 		header('Location: ' . $cutting_link);
 	}
 
-	/**
-	 *
-	 */
+    /**
+     * @throws xoctException
+     */
+	public function download()
+    {
+        $event_id = filter_input(INPUT_GET, 'event_id', FILTER_SANITIZE_STRING);
+        $publication_id = filter_input(INPUT_GET, 'pub_id', FILTER_SANITIZE_STRING);
+        $event = xoctEvent::find($event_id);
+        $download_publications = $event->publications()->getDownloadPublications();
+        if ($publication_id) {
+            $publication = array_filter($download_publications, function($publication) use ($publication_id) {
+                return $publication->getId() == $publication_id;
+            });
+            $publication = array_shift($publication);
+        } else {
+           $publication = array_shift($download_publications);
+        }
+        $url = $publication->getUrl();
+        $extension = pathinfo($url)['extension'];
+        $url = xoctConf::getConfig(xoctConf::F_SIGN_DOWNLOAD_LINKS) ? xoctSecureLink::signDownload($url) : $url;
+
+        // get filesize
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, TRUE);
+        curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+        curl_exec($ch);
+        $size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+        curl_close($ch);
+
+        // deliver file
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . $publication->getMediatype());
+        header('Content-Disposition: attachment; filename="' . $event->getTitle() . '.' . $extension . '"');
+        header('Content-Length: ' . $size);
+        readfile($url);
+        exit;
+    }
+
+
+    /**
+     *
+     * @throws xoctException
+     */
 	public function annotate() {
 		$xoctUser = xoctUser::getInstance(self::dic()->user());
 		$xoctEvent = xoctEvent::find($_GET[self::IDENTIFIER]);
@@ -520,8 +629,11 @@ class xoctEventGUI extends xoctGUI {
 
 
 		// redirect
-		$cutting_link = $xoctEvent->getAnnotationLink();
-		header('Location: ' . $cutting_link);
+		$annotation_link = $xoctEvent->publications()->getAnnotationLink(
+		    filter_input(INPUT_GET, 'ref_id', FILTER_SANITIZE_NUMBER_INT)
+        );
+
+		header('Location: ' . $annotation_link);
 	}
 
 
@@ -550,31 +662,6 @@ class xoctEventGUI extends xoctGUI {
 	/**
 	 *
 	 */
-	protected function saveAndStay() {
-		/**
-		 * @var xoctEvent $xoctEvent
-		 */
-		$xoctEvent = xoctEvent::find($_GET[self::IDENTIFIER]);
-		$xoctUser = xoctUser::getInstance(self::dic()->user());
-		if (!ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_EDIT_EVENT, $xoctEvent, $xoctUser)) {
-			ilUtil::sendFailure($this->txt('msg_no_access'), true);
-			$this->cancel();
-		}
-
-		$xoctEventFormGUI = new EventFormGUI($this, xoctEvent::find($_GET[self::IDENTIFIER]), $this->xoctOpenCast);
-		$xoctEventFormGUI->setValuesByPost();
-
-		if ($xoctEventFormGUI->saveObject()) {
-			ilUtil::sendSuccess($this->txt('msg_success'), true);
-			self::dic()->ctrl()->redirect($this, self::CMD_EDIT);
-		}
-		self::dic()->mainTemplate()->setContent($xoctEventFormGUI->getHTML());
-	}
-
-
-	/**
-	 *
-	 */
 	protected function update() {
 		/**
 		 * @var xoctEvent $xoctEvent
@@ -596,6 +683,44 @@ class xoctEventGUI extends xoctGUI {
 		self::dic()->mainTemplate()->setContent($xoctEventFormGUI->getHTML());
 	}
 
+
+    /**
+     * @throws DICException
+     * @throws xoctException
+     */
+	protected function republish()
+    {
+        $post_body = self::dic()->http()->request()->getParsedBody();
+        if (isset($post_body['workflow_id']) && is_string($post_body['workflow_id'])
+            && isset($post_body['republish_event_id']) && is_string($post_body['republish_event_id'])
+        ) {
+            $workflow_id = strip_tags($post_body['workflow_id']);
+            $event_id = strip_tags($post_body['republish_event_id']);
+            $workflow = (new WorkflowRepository())->getByWorkflowId($workflow_id);
+            if (!ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_EDIT_EVENT, new xoctEvent($event_id))
+                || is_null($workflow)) {
+                ilUtil::sendFailure($this->txt('msg_no_access'), true);
+                $this->cancel();
+            }
+            $request = [
+                'event_identifier' => $event_id,
+                'workflow_definition_identifier' => $workflow_id,
+            ];
+            $params = [];
+            foreach (explode(',', $workflow->getParameters()) as $param) {
+                $params[$param] = 'true';
+            }
+            if (!empty($params)) {
+                $request['configuration'] = json_encode($params);
+            }
+            xoctRequest::root()->workflows()->post($request);
+            ilUtil::sendSuccess($this->txt('msg_republish_started'), true);
+            self::dic()->ctrl()->redirect($this, self::CMD_STANDARD);
+        } else {
+            ilUtil::sendFailure($this->txt('msg_no_access'), true);
+            $this->cancel();
+        }
+    }
 
 	/**
 	 *
@@ -681,7 +806,7 @@ class xoctEventGUI extends xoctGUI {
 		}
 		$ilConfirmationGUI = new ilConfirmationGUI();
 		$ilConfirmationGUI->setFormAction(self::dic()->ctrl()->getFormAction($this));
-        if (count($xoctEvent->getPublications()) && xoctConf::getConfig(xoctConf::F_WORKFLOW_UNPUBLISH)) {
+        if (count($xoctEvent->publications()->getPublications()) && xoctConf::getConfig(xoctConf::F_WORKFLOW_UNPUBLISH)) {
             $header_text = $this->txt('unpublish_confirm');
             $action_text = 'unpublish';
         } else {
@@ -707,7 +832,7 @@ class xoctEventGUI extends xoctGUI {
 			ilUtil::sendFailure($this->txt('msg_no_access'), true);
 			$this->cancel();
 		}
-        if (count($xoctEvent->getPublications()) && xoctConf::getConfig(xoctConf::F_WORKFLOW_UNPUBLISH)) {
+        if (count($xoctEvent->publications()->getPublications()) && xoctConf::getConfig(xoctConf::F_WORKFLOW_UNPUBLISH)) {
             try {
                 $xoctEvent->unpublish();
                 ilUtil::sendSuccess($this->txt('msg_unpublish_started'), true);
@@ -785,23 +910,6 @@ class xoctEventGUI extends xoctGUI {
 	/**
 	 *
 	 */
-	protected function listAll() {
-		/**
-		 * @var $event xoctEvent
-		 */
-		$request = xoctRequest::root()->events()->parameter('limit', 1000);
-		$content = '';
-		foreach (json_decode($request->get()) as $d) {
-			$event = xoctEvent::find($d->identifier);
-			$content .= '<pre>' . print_r($event->__toStdClass(), 1) . '</pre>';
-		}
-		self::dic()->mainTemplate()->setContent($content);
-	}
-
-
-	/**
-	 *
-	 */
 	protected function clearCache() {
 		xoctCacheFactory::getInstance()->flush();
 		$this->xoctOpenCast->getSeriesIdentifier();
@@ -812,17 +920,12 @@ class xoctEventGUI extends xoctGUI {
 	 * @return string
 	 */
 	protected function getModalsHTML() {
-		$modal_date_html = $modal_quality_html = '';
-		if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_REPORT_DATE_CHANGE)) {
-			$modal_date = new xoctReportingModalGUI($this, xoctReportingModalGUI::REPORTING_TYPE_DATE);
-			$modal_date_html = $modal_date->getHTML();
-		}
-		if (xoctConf::getConfig(xoctConf::F_REPORT_QUALITY)) {
-			$modal_quality = new xoctReportingModalGUI($this, xoctReportingModalGUI::REPORTING_TYPE_QUALITY);
-			$modal_quality_html = $modal_quality->getHTML();
-		}
+        $modals_html = '';
+        foreach ($this->getModals()->getAllComponents() as $modal) {
+            $modals_html .= self::dic()->ui()->renderer()->renderAsync($modal);
+	    }
 
-		return $modal_date_html . $modal_quality_html;
+		return $modals_html;
 	}
 
 
@@ -934,6 +1037,25 @@ class xoctEventGUI extends xoctGUI {
 	public function getObjId() {
 		return $this->xoctOpenCast->getObjId();
 	}
+
+
+    /**
+     * @return EventModals
+     * @throws DICException
+     * @throws ilTemplateException
+     */
+	public function getModals() : EventModals
+    {
+    	if (is_null($this->modals)) {
+            $modals = new EventModals($this, self::plugin()->getPluginObject(), self::dic()->dic(), new WorkflowRepository());
+            $modals->initRepublish();
+            $modals->initReportDate();
+            $modals->initReportQuality();
+            $this->modals = $modals;
+            xoctEventRenderer::initModals($modals);
+        }
+    	return $this->modals;
+    }
 
 	/**
 	 * @return string

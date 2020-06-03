@@ -1,5 +1,38 @@
 # Change Log
 
+## [3.1.0]
+- Change: ILIAS 6 compatability
+- Change: dropped ILIAS 5.3 compatability
+- Fix: Fixed small caching bugs
+
+## [3.0.0]
+- Feature: allow multiple downloads
+- Feature: new "Download Fallback" publication
+- Feature: republish events with configurable workflows
+- Feature: video upload via ingest nodes configurable
+- Feature: configure tags for publications
+- Feature: preview publication configurable
+- Feature: signed link duration configurable for all link types
+- Feature: signed links can be restricted to the current ip address
+- Feature: "unprotected link" publication to show copyable link in event list
+- Improvement: finally a configuration manual
+- Improvement: introduced default values for publication configuration (a "standard" Opencast should work without any publications configured now)
+- Improvement: refactored publications 
+- Improvement: removed api publication (unused)
+- Improvement: hide download-/annotation-related settings in series form if corresponding publications don't exist
+- Fixed: config export bug
+- Refactoring and adjustments for page component plugin
+
+## [2.5.1]
+- Bugfix: Avoid upload bug by using unique IDs to save files
+- Bugfix: Fixed cleanup of old temp files
+
+## [2.5.0]
+- Feature: Opencast Studio button in series
+
+## [2.4.2]
+- Fixed race condition when creating series
+
 ## [2.4.1]
 - Fixed Tile sorting
 - Feature/Fix: introduced "Show in Form (checkbox active)" for workflow parameters

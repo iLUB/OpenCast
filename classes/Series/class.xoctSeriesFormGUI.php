@@ -1,5 +1,8 @@
 <?php
 use srag\DIC\OpenCast\DICTrait;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationUsageRepository;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationUsage;
+
 /**
  * Class xoctSeriesFormGUI
  *
@@ -99,6 +102,7 @@ class xoctSeriesFormGUI extends ilPropertyFormGUI {
 	 */
 	protected function initForm() {
 		$xoctUser = xoctUser::getInstance(self::dic()->user());
+		$publication_repository = new PublicationUsageRepository();
 		$this->setTarget('_top');
 		$this->setFormAction(self::dic()->ctrl()->getFormAction($this->parent_gui));
 		$this->initButtons();
@@ -215,11 +219,16 @@ class xoctSeriesFormGUI extends ilPropertyFormGUI {
             $this->addItem($publish_on_video_portal);
         }
 
-		$use_annotations = new ilCheckboxInputGUI($this->txt(self::F_USE_ANNOTATIONS), self::F_USE_ANNOTATIONS);
-		$this->addItem($use_annotations);
+        if ($publication_repository->exists(PublicationUsage::USAGE_ANNOTATE)) {
+            $use_annotations = new ilCheckboxInputGUI($this->txt(self::F_USE_ANNOTATIONS), self::F_USE_ANNOTATIONS);
+            $this->addItem($use_annotations);
+        }
 
-		$streaming_only = new ilCheckboxInputGUI($this->txt(self::F_STREAMING_ONLY), self::F_STREAMING_ONLY);
-		$this->addItem($streaming_only);
+        if ($publication_repository->exists(PublicationUsage::USAGE_DOWNLOAD)) {
+            $streaming_only = new ilCheckboxInputGUI($this->txt(self::F_STREAMING_ONLY), self::F_STREAMING_ONLY);
+            $streaming_only->setInfo($this->txt(self::F_STREAMING_ONLY . '_info'));
+            $this->addItem($streaming_only);
+        }
 
 		$permission_per_clip = new ilCheckboxInputGUI($this->txt(self::F_PERMISSION_PER_CLIP), self::F_PERMISSION_PER_CLIP);
 		$permission_per_clip->setInfo($this->infoTxt(self::F_PERMISSION_PER_CLIP));
@@ -300,10 +309,8 @@ class xoctSeriesFormGUI extends ilPropertyFormGUI {
 			self::F_PERMISSION_TEMPLATE      => $this->series->getPermissionTemplateId(),
 			self::F_PUBLISH_ON_VIDEO_PORTAL  => $this->series->isPublishedOnVideoPortal(),
 			self::F_DEFAULT_VIEW  			 => $this->cast->getDefaultView(),
+            self::F_VIEW_CHANGEABLE          => $this->cast->isViewChangeable()
 		];
-		if (xoct::isIlias54()) {
-			$array[self::F_VIEW_CHANGEABLE] = $this->cast->isViewChangeable();
-		}
         if (xoctConf::getConfig(xoctConf::F_ENABLE_CHAT)) {
             $array[self::F_CHAT_ACTIVE] = $this->cast->isChatActive();
         }
@@ -342,10 +349,8 @@ class xoctSeriesFormGUI extends ilPropertyFormGUI {
 		$this->cast->setPermissionAllowSetOwn($this->getInput(self::F_PERMISSION_ALLOW_SET_OWN));
 		$this->cast->setOnline($this->getInput(self::F_OBJ_ONLINE));
 		$this->cast->setAgreementAccepted(true);
-		if (xoct::isIlias54()) {
-			$this->cast->setDefaultView($this->getInput(self::F_DEFAULT_VIEW));
-			$this->cast->setViewChangeable($this->getInput(self::F_VIEW_CHANGEABLE));
-		}
+        $this->cast->setDefaultView($this->getInput(self::F_DEFAULT_VIEW));
+        $this->cast->setViewChangeable($this->getInput(self::F_VIEW_CHANGEABLE));
         if (xoctConf::getConfig(xoctConf::F_ENABLE_CHAT)) {
             $this->cast->setChatActive($this->getInput(self::F_CHAT_ACTIVE));
         }

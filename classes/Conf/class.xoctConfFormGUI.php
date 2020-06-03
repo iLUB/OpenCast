@@ -209,11 +209,14 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 
 		$te = new ilTextInputGUI($this->parent_gui->txt(xoctConf::F_EDITOR_LINK), xoctConf::F_EDITOR_LINK);
 		$te->setInfo($this->parent_gui->txt(xoctConf::F_EDITOR_LINK . '_info'));
-		$te->setRequired(true);
 		$this->addItem($te);
 
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_CREATE_SCHEDULED_ALLOWED), xoctConf::F_CREATE_SCHEDULED_ALLOWED);
 		$cb->setInfo($this->parent_gui->txt(xoctConf::F_CREATE_SCHEDULED_ALLOWED . '_info'));
+		$this->addItem($cb);
+
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_STUDIO_ALLOWED), xoctConf::F_STUDIO_ALLOWED);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_STUDIO_ALLOWED . '_info'));
 		$this->addItem($cb);
 
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_AUDIO_ALLOWED), xoctConf::F_AUDIO_ALLOWED);
@@ -353,6 +356,10 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$te->setRows(5);
 		$this->addItem($te);
 
+		$te = new ilTextAreaInputGUI($this->parent_gui->txt(xoctConf::F_LICENSES), xoctConf::F_LICENSES);
+		$te->setInfo($this->parent_gui->txt(xoctConf::F_LICENSES . '_info'));
+		$this->addItem($te);
+
 		$te = new ilTextAreaInputGUI($this->parent_gui->txt(xoctConf::F_LICENSE_INFO), xoctConf::F_LICENSE_INFO);
 		$te->setRequired(true);
 		$te->setUseRte(true);
@@ -374,10 +381,6 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 			'formatselect',
 		));
 		$te->setRows(5);
-		$this->addItem($te);
-
-		$te = new ilTextAreaInputGUI($this->parent_gui->txt(xoctConf::F_LICENSES), xoctConf::F_LICENSES);
-		$te->setInfo($this->parent_gui->txt(xoctConf::F_LICENSES . '_info'));
 		$this->addItem($te);
 
 		// DATE REPORT
@@ -475,13 +478,39 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$cb_sub_2->setInfo($this->parent_gui->txt(xoctConf::F_SIGN_PLAYER_LINKS_ADDITIONAL_TIME_PERCENT . '_info'));
 		$cb_sub->addSubItem($cb_sub_2);
 
+		$cb_sub = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_PLAYER_LINKS_WITH_IP), xoctConf::F_SIGN_PLAYER_LINKS_WITH_IP);
+		$cb->addSubItem($cb_sub);
+
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_DOWNLOAD_LINKS), xoctConf::F_SIGN_DOWNLOAD_LINKS);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_SIGN_DOWNLOAD_LINKS . '_info'));
 		$this->addItem($cb);
+
+		$cb_sub = new ilNumberInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_DOWNLOAD_LINKS_TIME), xoctConf::F_SIGN_DOWNLOAD_LINKS_TIME);
+		$cb_sub->setInfo($this->parent_gui->txt(xoctConf::F_SIGN_DOWNLOAD_LINKS_TIME . '_info'));
+		$cb->addSubItem($cb_sub);
 
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_THUMBNAIL_LINKS), xoctConf::F_SIGN_THUMBNAIL_LINKS);
 		$this->addItem($cb);
 
+		$cb_sub = new ilNumberInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_THUMBNAIL_LINKS_TIME), xoctConf::F_SIGN_THUMBNAIL_LINKS_TIME);
+		$cb_sub->setInfo($this->parent_gui->txt(xoctConf::F_SIGN_THUMBNAIL_LINKS_TIME . '_info'));
+		$cb->addSubItem($cb_sub);
+
+		$cb_sub = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_THUMBNAIL_LINKS_WITH_IP), xoctConf::F_SIGN_THUMBNAIL_LINKS_WITH_IP);
+		$cb->addSubItem($cb_sub);
+
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_ANNOTATION_LINKS), xoctConf::F_SIGN_ANNOTATION_LINKS);
+		$this->addItem($cb);
+
+		$cb_sub = new ilNumberInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_ANNOTATION_LINKS_TIME), xoctConf::F_SIGN_ANNOTATION_LINKS_TIME);
+		$cb_sub->setInfo($this->parent_gui->txt(xoctConf::F_SIGN_ANNOTATION_LINKS_TIME . '_info'));
+		$cb->addSubItem($cb_sub);
+
+		$cb_sub = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_SIGN_ANNOTATION_LINKS_WITH_IP), xoctConf::F_SIGN_ANNOTATION_LINKS_WITH_IP);
+		$cb->addSubItem($cb_sub);
+
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_ANNOTATION_TOKEN_SEC), xoctConf::F_ANNOTATION_TOKEN_SEC);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_ANNOTATION_TOKEN_SEC . '_info'));
 		$this->addItem($cb);
 	}
 
@@ -533,6 +562,10 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$te = new ilNumberInputGUI($this->parent_gui->txt(xoctConf::F_UPLOAD_CHUNK_SIZE), xoctConf::F_UPLOAD_CHUNK_SIZE);
 		$te->setInfo($this->parent_gui->txt(xoctConf::F_UPLOAD_CHUNK_SIZE . '_info'));
 		$this->addItem($te);
+
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_INGEST_UPLOAD), xoctConf::F_INGEST_UPLOAD);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_INGEST_UPLOAD . '_info'));
+		$this->addItem($cb);
 	}
 
 }

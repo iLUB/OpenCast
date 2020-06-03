@@ -1,4 +1,18 @@
 # ILIAS-Plugin Opencast
+Use Opencast in ILIAS LMS with a wide variety of features:
+* create Opencast series as repository objects
+* upload, schedule and edit events
+* watch and download videos or use the Annotation tool
+* integrated Paella video Player
+* live stream events with an on-screen chat
+* detailed permission configuration
+* use Opencast videos in the ILIAS page editor (additional plugin required: https://github.com/studer-raimann/OpencastPageComponent)
+
+## Getting Started
+
+### Requirements
+* ILIAS 5.4 or ILIAS 6
+* PHP >= 7.0
 
 ### Installation
 Start at your ILIAS root directory
@@ -9,19 +23,17 @@ git clone https://github.com/studer-raimann/OpenCast.git
 ```
 As ILIAS administrator go to "Administration"->"Plugins" and install/activate the plugin.
 
+### Configuration
+After a fresh installation, the plugin configuration will already contain a basic configuration. A few things will have to be adjusted to make the plugin work though. Have a look at the [configuration manual](./doc/CONFIGURATION.md).
+
 ### Workaround for internal Paella Player
-If you're using the plugin-internal Paella Player, you will have to implement a small workaround for a bug in the current version of Paella Player. Start in you ILIAS root directory:
+If you're using the plugin-internal Paella Player, you will have to implement a small workaround for a bug in the current version of Paella Player. Start in your ILIAS root directory:
 ```bash
 ln -s Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/node_modules/paellaplayer/build/player/resources/ .
 ```
 
-### Adjustment suggestions
-* Adjustment suggestions by pull requests
-* Adjustment suggestions which are not yet worked out in detail by Jira tasks under https://jira.studer-raimann.ch/projects/PLOPENCAST
-* Bug reports under https://jira.studer-raimann.ch/projects/PLOPENCAST
-* For external users you can report it at https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_PLOPENCAST
-
 ### Installation Live Chat
+This is only required if the plugin is configured to show live events and if you wish to display a live chat during these events.
 
 #### Install Node JS
 The live chat runs on a node js server and was tested with node version 10.x. To install nodejs v10.x on Ubuntu, execute:
@@ -49,10 +61,18 @@ If your web server uses HTTPS, you will need to make the chat understand HTTPS a
 
  Note that when using a reverse proxy, the chat will open an unsecured websocket (ws://), whereas the first option will open a secured one (wss://).
 
+## Authors
+
+This is an OpenSource project by studer + raimann ag (https://studer-raimann.ch)
+
+## License
+
+This project is licensed under the GPL v3 License 
 
 ### ILIAS Plugin SLA
-Wir lieben und leben die Philosophie von Open Source Software! Die meisten unserer Entwicklungen, welche wir im Kundenauftrag oder in Eigenleistung entwickeln, stellen wir öffentlich allen Interessierten kostenlos unter https://github.com/studer-raimann zur Verfügung.
 
-Setzen Sie eines unserer Plugins professionell ein? Sichern Sie sich mittels SLA die termingerechte Verfügbarkeit dieses Plugins auch für die kommenden ILIAS Versionen. Informieren Sie sich hierzu unter https://studer-raimann.ch/produkte/ilias-plugins/plugin-sla.
+We love and live the philosophy of Open Source Software! Most of our developments, which we develop on behalf of customers or on our own account, are publicly available free of charge to all interested parties at https://github.com/studer-raimann.
 
-Bitte beachten Sie, dass wir nur Institutionen, welche ein SLA abschliessen Unterstützung und Release-Pflege garantieren.
+Do you use one of our plugins professionally? Secure the timely availability of this plugin for the upcoming ILIAS versions via SLA. Please inform yourself under https://studer-raimann.ch/produkte/ilias-plugins/plugin-sla.
+
+Please note that we only guarantee support and release maintenance for institutions that sign a SLA.
