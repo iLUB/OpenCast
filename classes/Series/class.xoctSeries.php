@@ -30,6 +30,7 @@ class xoctSeries extends APIObject {
 	public function __construct($identifier = '') {
 		if ($identifier) {
 			$this->setIdentifier($identifier);
+			sleep(1);
 			$this->read();
 		}
 	}
@@ -225,7 +226,7 @@ class xoctSeries extends APIObject {
 		$array['theme'] = $this->getTheme();
 
 		$data = json_decode(xoctRequest::root()->series()->post($array));
-		sleep(3);
+		sleep(1);
 		
 		if ($data->identifier) {
 			$this->setIdentifier($data->identifier);
