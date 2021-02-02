@@ -160,11 +160,12 @@
       },
       "es.upv.paella.multipleQualitiesPlugin": {
         "enabled": true,
-        "showWidthRes": true
+        "showWidthRes": true,
+        "minVisibleQuality": 60
       },
       "es.upv.paella.playbackRatePlugin": {
         "enabled": true,
-        "availableRates": [0.75, 1, 1.25, 1.5]
+        "availableRates": [0.75, 1, 1.25, 1.5, 1.75, 2.0]
       },
       "es.upv.paella.playPauseButtonPlugin": {
         "enabled": true
@@ -240,7 +241,14 @@
         "position": "right",
         "legalUrl": "https://en.wikipedia.org/wiki/General_Data_Protection_Regulation"
       },
-
+      "es.upv.paella.timeMarksPlaybackCanvasPlugin": {
+        "enabled": true,
+        "color": "gray"
+      },
+      "es.upv.paella.BufferedPlaybackCanvasPlugin": {
+        "enabled": true,
+        "color": "rgba(0,0,0,0.4)"
+      },
       "//***** TabBar Plugins": "",
       "es.upv.paella.commentsPlugin": {
         "enabled": false

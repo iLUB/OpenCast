@@ -35,26 +35,28 @@ class ilObjOpenCast extends ilObjectPlugin {
 	public function doCreate() {
 	}
 
-
 	/**
 	 * @throws xoctException
 	 */
-	public function doRead() {
+	public function updateObjectFromSeries()
+	{
 		xoctConf::setApiSettings();
 		/**
 		 * @var $xoctOpenCast xoctOpenCast
 		 */
 		$xoctOpenCast = xoctOpenCast::find($this->getId());
+		if (self::dic()->ctrl()->isAsynch()) {
+			// don't update title/description on async calls
+			return;
+		}
 
 		// catch exception: the series may already be deleted in opencast (404 exception)
 		try {
 			$series = $xoctOpenCast->getSeries();
 		} catch (xoctException $e) {
+		    xoctLog::getInstance()->write($e->getMessage());
 			if (ilContext::hasHTML()) {
 				ilUtil::sendInfo($e->getMessage(), true);
-			} else {
-				// if the exception is thrown during a cron job e.g., we want the exception to be thrown
-				throw $e;
 			}
 			return;
 		}

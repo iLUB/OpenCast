@@ -21,6 +21,7 @@ use xoctRequest;
 use xoctSecureLink;
 use xoctUser;
 use xoctPublicationMetadata;
+use srag\Plugins\Opencast\Model\DTO\DownloadDto;
 
 /**
  * Class PublicationSelector
@@ -188,6 +189,36 @@ class PublicationSelector
         return $this->download_publications;
     }
 
+    /**
+     * @return DownloadDto[]
+     * @throws xoctException
+     */
+    public function getDownloadDtos() : array {
+        $download_publications = $this->getDownloadPublications();
+        usort($download_publications, function ($pub1, $pub2) {
+            /** @var $pub1 xoctPublication|xoctMedia|xoctAttachment */
+            /** @var $pub2 xoctPublication|xoctMedia|xoctAttachment */
+            if ($pub1 instanceof xoctMedia && $pub2 instanceof xoctMedia) {
+                if ($pub1->getHeight() == $pub2->getHeight()) {
+                    return 0;
+                }
+                return ($pub1->getHeight() > $pub2->getHeight()) ? -1 : 1;
+            }
+            return 0;
+        });
+        return array_map(function($pub, $i) {
+            /** @var $pub xoctPublication|xoctMedia|xoctAttachment */
+            $label = ($pub instanceof xoctMedia) ? $pub->getHeight() . 'p' :
+                ($pub instanceof xoctAttachment ? $pub->getFlavor() : 'Download ' . $i);
+            $label = $label == '1080p' ? ($label . ' (FullHD)') : $label;
+            $label = $label == '2160p' ? ($label . ' (UltraHD)') : $label;
+            return new DownloadDto(
+                $pub->getId(),
+                $label
+            );
+        }, $download_publications, array_keys($download_publications));
+    }
+
 
     /**
      * @return xoctPublication[]|xoctMedia[]|xoctAttachment[]
@@ -244,6 +275,16 @@ class PublicationSelector
         return $this->cutting_url;
     }
 
+    /**
+     * @return xoctPublication
+     * @throws xoctException
+     */
+    public function getPlayerPublication()
+    {
+        return $this->getFirstPublicationMetadataForUsage(
+            $this->publication_usage_repository->getUsage(PublicationUsage::USAGE_PLAYER)
+        );
+    }
 
     /**
      * @return null|string
@@ -252,32 +293,24 @@ class PublicationSelector
     public function getPlayerLink()
     {
         if (!isset($this->player_url)) {
-            if (xoctConf::getConfig(xoctConf::F_INTERNAL_VIDEO_PLAYER) || $this->event->isLiveEvent()) {
-                self::dic()->ctrl()->clearParametersByClass(xoctEventGUI::class);
-                self::dic()->ctrl()->setParameterByClass(xoctEventGUI::class, xoctEventGUI::IDENTIFIER, $this->event->getIdentifier());
-                $this->player_url = self::dic()->ctrl()->getLinkTargetByClass(
-                    [
-                        ilRepositoryGUI::class,
-                        ilObjOpenCastGUI::class,
-                        xoctEventGUI::class,
-                        xoctPlayerGUI::class
-                    ], xoctPlayerGUI::CMD_STREAM_VIDEO);
-            } else {
-                $url = $this->getFirstPublicationMetadataForUsage(
-                    $this->publication_usage_repository->getUsage(PublicationUsage::USAGE_PLAYER)
-                )->getUrl();
+            $url = $this->getPlayerPublication()->getUrl();
 
-                if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
-                    $this->player_url = xoctSecureLink::signPlayer($url);
-                } else {
-                    $this->player_url = $url;
-                }
+            if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
+                $this->player_url = xoctSecureLink::signPlayer($url);
+            } else {
+                $this->player_url = $url;
             }
         }
 
         return $this->player_url;
     }
 
+    public function getAnnotationPublication()
+    {
+        return $this->getFirstPublicationMetadataForUsage(
+            $this->publication_usage_repository->getUsage(PublicationUsage::USAGE_ANNOTATE)
+        );
+    }
 
     /**
      * @param int $ref_id set the ref id if the link should be secured via hash mechanism
@@ -288,10 +321,13 @@ class PublicationSelector
     public function getAnnotationLink(int $ref_id = 0)
     {
         if (!isset($this->annotation_url)) {
-            $annotation_publication = $this->getFirstPublicationMetadataForUsage(
-                $this->publication_usage_repository->getUsage(PublicationUsage::USAGE_ANNOTATE)
-            );
-            $url = is_null($annotation_publication) ? '' : $annotation_publication->getUrl();
+            $annotation_publication = $this->getAnnotationPublication();
+            if (is_null($annotation_publication)) {
+                $this->annotation_url = '';
+                return '';
+            }
+
+            $url = $annotation_publication->getUrl();
             if (xoctConf::getConfig(xoctConf::F_SIGN_ANNOTATION_LINKS)) {
                 $this->annotation_url = xoctSecureLink::signAnnotation($url);
             } else {
@@ -418,10 +454,6 @@ class PublicationSelector
      */
     public function getPublicationMetadataForUsage($PublicationUsage) : array
     {
-        if (!$this->loaded) {
-            $this->loadPublications();
-        }
-
         if (!$PublicationUsage instanceof PublicationUsage) {
             return [];
         }
@@ -486,11 +518,10 @@ class PublicationSelector
         return array_filter($return);
     }
 
-
     /**
      * @param $xoctPublicationUsage
-     *
      * @return mixed|xoctPublication
+     * @throws xoctException
      */
     public function getFirstPublicationMetadataForUsage($xoctPublicationUsage)
     {
@@ -546,9 +577,13 @@ class PublicationSelector
 
     /**
      * @return xoctPublication[]
+     * @throws xoctException
      */
     public function getPublications() : array
     {
+        if (!$this->loaded) {
+            $this->loadPublications();
+        }
         return $this->publications;
     }
 }

@@ -13,11 +13,15 @@ xoctPaellaPlayer = {
 
     status: 'playing',
 
+    // 10 minute buffer before the event is considered 'started', to avoid wrong status message for
+    // events started too late
+    event_start_buffer: 60 * 10,
+
     init: function(data, config) {
         this.data = data;
         this.config = config;
         if (this.config.is_live_stream === true) {
-            this.checkStreams().then(function(stream_available) {
+            this.hasWorkingStream().then(function(stream_available) {
                 if (stream_available === 'true') {
                     xoctPaellaPlayer.loadPlayer();
                     xoctPaellaPlayer.checkStreamStatus();
@@ -62,15 +66,17 @@ xoctPaellaPlayer = {
 
     loadPlayer: function() {
         $('#overlay_live_waiting').hide();
-        paella.load('playerContainer', {
-            data: xoctPaellaPlayer.data,
-            configUrl: xoctPaellaPlayer.config.paella_config_file,
+        this.filterStreams().then(() => {
+            paella.lazyLoad('playerContainer', {
+                data: xoctPaellaPlayer.data,
+                configUrl: xoctPaellaPlayer.config.paella_config_file,
+            });
         });
     },
 
     triggerOverlays: function() {
         let ts = Math.round(new Date().getTime() / 1000);
-        if (ts < xoctPaellaPlayer.config.event_start) {
+        if (ts < (xoctPaellaPlayer.config.event_start + xoctPaellaPlayer.event_start_buffer)) {
             xoctPaellaPlayer.showOverlay('waiting');
         } else if (ts > xoctPaellaPlayer.config.event_end) {
             xoctPaellaPlayer.showOverlay('over');
@@ -93,17 +99,17 @@ xoctPaellaPlayer = {
     },
 
     isStreamWorking: async function(url) {
-        return await $.get(xoctPaellaPlayer.config.check_script_hls + "?url=" + url);
+        return (await $.get(xoctPaellaPlayer.config.check_script_hls + "?url=" + url) === 'true');
     },
 
     /**
      * check for working streams
      * @returns {Promise<boolean>}
      */
-    checkStreams: async function() {
+    hasWorkingStream: async function() {
         var working_stream_found = false;
         for (const stream of xoctPaellaPlayer.data.streams) {
-            if (working_stream_found === false ) {
+            if (!working_stream_found) {
                 working_stream_found = await xoctPaellaPlayer.isStreamWorking(stream.sources.hls[0].src);
             }
         }
@@ -117,7 +123,7 @@ xoctPaellaPlayer = {
      */
     checkAndLoadLive: async function() {
         var i = setInterval(async function() {
-            if (await xoctPaellaPlayer.checkStreams() === 'true') {
+            if (await xoctPaellaPlayer.hasWorkingStream()) {
                 xoctPaellaPlayer.hideOverlays();
                 xoctPaellaPlayer.loadPlayer();
                 clearInterval(i);
@@ -138,11 +144,11 @@ xoctPaellaPlayer = {
         let f = async function() {
             console.log('check stream status');
             var ts = Math.round(new Date().getTime() / 1000);
-            if (await xoctPaellaPlayer.checkStreams() !== 'true') {
-                if (ts < xoctPaellaPlayer.config.event_start) {
-                    xoctPaellaPlayer.status = 'waiting';
-                } else if (ts >= xoctPaellaPlayer.config.event_end) {
+            if (!(await xoctPaellaPlayer.hasWorkingStream())) {
+                if (ts >= xoctPaellaPlayer.config.event_end) {
                     xoctPaellaPlayer.status = 'over';
+                } else if (ts < (xoctPaellaPlayer.config.event_start + xoctPaellaPlayer.event_start_buffer)) {
+                    xoctPaellaPlayer.status = 'waiting';
                 } else {
                     xoctPaellaPlayer.status = 'interrupted';
                 }
@@ -166,5 +172,16 @@ xoctPaellaPlayer = {
             }
         };
         i = setInterval(f, 20000)
+    },
+
+    filterStreams: async function() {
+        if (this.config.is_live_stream) {
+            for (const streamKey in xoctPaellaPlayer.data.streams) {
+                if (xoctPaellaPlayer.data.streams.hasOwnProperty(streamKey) &&
+                  (!(await xoctPaellaPlayer.isStreamWorking(xoctPaellaPlayer.data.streams[streamKey].sources.hls[0].src)))) {
+                    xoctPaellaPlayer.data.streams.splice(streamKey, 1);
+                }
+            }
+        }
     }
 }

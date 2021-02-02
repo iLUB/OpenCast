@@ -215,6 +215,10 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$cb->setInfo($this->parent_gui->txt(xoctConf::F_CREATE_SCHEDULED_ALLOWED . '_info'));
 		$this->addItem($cb);
 
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_EXT_DL_SOURCE), xoctConf::F_EXT_DL_SOURCE);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_EXT_DL_SOURCE . '_info'));
+		$this->addItem($cb);
+
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_STUDIO_ALLOWED), xoctConf::F_STUDIO_ALLOWED);
 		$cb->setInfo($this->parent_gui->txt(xoctConf::F_STUDIO_ALLOWED . '_info'));
 		$this->addItem($cb);
@@ -512,6 +516,10 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_ANNOTATION_TOKEN_SEC), xoctConf::F_ANNOTATION_TOKEN_SEC);
 		$cb->setInfo($this->parent_gui->txt(xoctConf::F_ANNOTATION_TOKEN_SEC . '_info'));
 		$this->addItem($cb);
+
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_PRESIGN_LINKS), xoctConf::F_PRESIGN_LINKS);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_PRESIGN_LINKS . '_info'));
+		$this->addItem($cb);
 	}
 
 
@@ -523,10 +531,15 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 		$h->setTitle($this->parent_gui->txt('advanced'));
 		$this->addItem($h);
 
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_COMMON_IDP), xoctConf::F_COMMON_IDP);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_COMMON_IDP . '_info'));
+		$this->addItem($cb);
+
 		$te = new ilSelectInputGUI($this->parent_gui->txt(xoctConf::F_USER_MAPPING), xoctConf::F_USER_MAPPING);
 		$te->setInfo($this->parent_gui->txt(xoctConf::F_USER_MAPPING . '_info'));
 		$te->setOptions(array(
 			xoctUser::MAP_EXT_ID => 'External-ID',
+			xoctUser::MAP_LOGIN => 'Login',
 			xoctUser::MAP_EMAIL => 'E-Mail',
 		));
 		$this->addItem($te);
@@ -565,6 +578,10 @@ class xoctConfFormGUI extends ilPropertyFormGUI {
 
 		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_INGEST_UPLOAD), xoctConf::F_INGEST_UPLOAD);
 		$cb->setInfo($this->parent_gui->txt(xoctConf::F_INGEST_UPLOAD . '_info'));
+		$this->addItem($cb);
+
+		$cb = new ilCheckboxInputGUI($this->parent_gui->txt(xoctConf::F_LOAD_TABLE_SYNCHRONOUSLY), xoctConf::F_LOAD_TABLE_SYNCHRONOUSLY);
+		$cb->setInfo($this->parent_gui->txt(xoctConf::F_LOAD_TABLE_SYNCHRONOUSLY . '_info'));
 		$this->addItem($cb);
 	}
 
