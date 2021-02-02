@@ -205,8 +205,7 @@ class xoctPlayerGUI extends xoctGUI
                         "hls" => [
                             [
                                 "src" => $track['url'],
-                                "mimetype" => $track['mimetype'],
-                                "isLiveStream" => true
+                                "mimetype" => $track['mimetype']
                             ]
                         ]
                     ]
@@ -220,8 +219,7 @@ class xoctPlayerGUI extends xoctGUI
                     "hls" => [
                         [
                             "src" => $track['url'],
-                            "mimetype" => $track['mimetype'],
-                            "isLiveStream" => true
+                            "mimetype" => $track['mimetype']
                         ]
                     ]
                 ]
