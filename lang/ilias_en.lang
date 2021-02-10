@@ -262,7 +262,7 @@ owner_only_one_owner#:#Only one owner can be chosen per video.
 invitations_back#:#Back
 invitations_header#:#Grant Access to Event
 invitations_none_available#:#None available
-obj_xoct#:#SWITCHcast Series
+obj_xoct#:#Video (SWITCHcast Serie)
 objs_xoct#:#SWITCHcast Series
 invitations_invite_all#:#Add all
 perm_upload#:#Upload

@@ -258,7 +258,7 @@ owner_only_one_owner#:#Es kann nur ein Besitzer pro Video ausgewählt werden.
 invitations_back#:#Zurück
 invitations_header#:#Zugriffsrechte erteilen
 invitations_none_available#:#Keine verfügbar
-obj_xoct#:#SWITCHcast Serie
+obj_xoct#:#Video (SWITCHcast Serie)
 objs_xoct#:#SWITCHcast Serie
 invitations_invite_all#:#Alle hinzufügen
 perm_upload#:#Upload
