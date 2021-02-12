@@ -1,15 +1,65 @@
 # Change Log
 
-## [x]
+## [3.5.0]
+- Improvement: Paella Player v6.5.0 (fixed some minor issues)
+- Improvement: better performance by ommiting some unnecessary requests
+- Improvement: allow upload of .m4v files
+- Improvement: added available playback rates 1.75 and 2.0
+- Improvement: check and filter not-transmitting streams for multi-live-streams
+- Improvement: avoid showing 'interrupted' message for delayed live streams
+- Improvement: prevent player from loading last used profile (=layout)
+- Improvement/fix: new series - disable "choose existing series" if none available
+- Feature: show column for unprotected link only if such link is present (and restricted to edit_videos permission)
+- Feature: config for presigning urls (possible performance boost)
+- Feature: config for synchronous loading of table (possible performance boost)
+- Feature: additional option 'Login' for user mapping
+- Feature: config for making "Presenter" field mandatory (thanks mliradelc!)
+- Fix: internal player showed two streams but no quality selector on a single stream with multiple qualities
+- Fix: omit error when emptying trash with old Opencast object via cron job
+- Fix: show preview image in paella player
+- Fix: fixed user filter in 'change owner' and 'grant access' views (was case-sensitive)
+- Fix: fixed time format for reports table (plugin configuration)
+- Fix: fixed Opencast Studio return link (thanks LukasKalbertodt!)
+
+## [3.4.2]
+- Fix: upload error (wrong acl format)
+
+## [3.4.1]
+- Fix: paella time-marks plugin broke live stream player
+
+## [3.4.0]
+- Fix/Improvement: Updated Paella Player to v6.4.3 (fixes broken player buttons)
+
+## [3.3.4]
+- Fix: properly show scheduling conflict messages
+- Fix: Fatal error when opening workflow configuration
+- Fix: Unpublish Workflow didn't work properly in some situations
+
+## [3.3.3]
+- Added config for 'Common IdP' (currently used for OpencastPageComponent's permission checks)
+
+## [3.3.2]
+- Refactored download publications for easier integration in InteractiveVideo plugin
+
+## [3.3.1]
+- Fix save object metadata with % character
+
+## [3.3.0]
+- Download event button has now the option "External download Source"
+- Added Labels for FullHD and UltraHD
+- Add support for Opencast Studio return link
+
+## [3.2.0]
+- Fix latest ILIAS 6
 - Fix republish workflows with same name
 - Add line break after each iframe
 - Remove possible iframe border
 - Fix Docker-ILIAS log
+- Min. PHP 7.0
 
 ## [3.1.1]
 - Follow curl redirects
 - Fix core autoload conflict
-
 
 ## [3.1.0]
 - Change: ILIAS 6 compatability

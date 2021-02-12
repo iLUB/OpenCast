@@ -27,8 +27,7 @@ class xoctConf extends ActiveRecord {
 	const F_GROUP_PRODUCERS = 'group_producers';
 	const F_STD_ROLES = 'std_roles';
 	const F_ROLE_USER_PREFIX = 'role_user_prefix';
-	const F_ROLE_OWNER_EXTERNAL_PREFIX = 'role_ivt_external_prefix';
-	const F_ROLE_OWNER_EMAIL_PREFIX = 'role_ivt_email_prefix';
+	const F_ROLE_OWNER_PREFIX = 'role_owner_prefix';
 	const F_IDENTIFIER_TO_UPPERCASE = 'identifier_to_uppercase';
 	const F_LICENSE_INFO = 'license_info';
 	const F_LICENSES = 'licenses';
@@ -44,6 +43,7 @@ class xoctConf extends ActiveRecord {
 	const SEP_EV_ACL_MD_PUB = 3;
 	const F_NO_METADATA = 'no_metadata';
 	const F_INTERNAL_VIDEO_PLAYER = 'internal_player';
+	const F_PRESIGN_LINKS = 'presign_links';
 	const F_SIGN_PLAYER_LINKS = 'sign_player_links';
 	const F_SIGN_PLAYER_LINKS_OVERWRITE_DEFAULT = 'sign_player_links_overwrite_default';
 	const F_SIGN_PLAYER_LINKS_ADDITIONAL_TIME_PERCENT = "sign_player_links_additional_time_percent";
@@ -57,6 +57,7 @@ class xoctConf extends ActiveRecord {
 	const F_AUDIO_ALLOWED = 'audio_allowed';
 	const F_CREATE_SCHEDULED_ALLOWED = 'create_scheduled_allowed';
 	const F_STUDIO_ALLOWED = 'oc_studio_allowed';
+	const F_EXT_DL_SOURCE = 'external_download_source';
 	const F_VIDEO_PORTAL_LINK = 'video_portal_link';
 	const F_VIDEO_PORTAL_TITLE = 'video_portal_title';
 	const F_ENABLE_LIVE_STREAMS = 'enable_live_streams';
@@ -77,6 +78,7 @@ class xoctConf extends ActiveRecord {
 	const NO_METADATA = 0;
 	const ALL_METADATA = 1;
 	const METADATA_EXCEPT_DATE_PLACE = 2;
+	const F_PRESENTER_MANDATORY = 'presenter_mandatory';
 
 	const F_USE_STREAMING = 'use_streaming';
     const F_STREAMING_URL = 'streaming_url';
@@ -84,14 +86,15 @@ class xoctConf extends ActiveRecord {
 	const F_UPLOAD_CHUNK_SIZE = 'upload_chunk_size';
 	const F_ALLOW_WORKFLOW_PARAMS_IN_SERIES = 'allow_workflow_params_in_series';
 	const F_INGEST_UPLOAD = 'ingest_upload';
+	const F_COMMON_IDP = 'common_idp';
+	const F_LOAD_TABLE_SYNCHRONOUSLY = 'load_table_sync';
 
 	/**
 	 * @var array
 	 */
 	public static $roles = array(
 		self::F_ROLE_USER_PREFIX,
-		self::F_ROLE_OWNER_EXTERNAL_PREFIX,
-		self::F_ROLE_OWNER_EMAIL_PREFIX,
+        self::F_ROLE_OWNER_PREFIX
 	);
 	/**
 	 * @var array
@@ -140,7 +143,7 @@ class xoctConf extends ActiveRecord {
 		xoctLog::init(self::getConfig(self::F_CURL_DEBUG_LEVEL));
 
 		// USER
-		xoctUser::setUserMapping(self::getConfig(self::F_USER_MAPPING) ? self::getConfig(self::F_USER_MAPPING) : xoctUser::MAP_EMAIL);
+		xoctUser::setUserMapping(self::getConfig(self::F_USER_MAPPING) ? self::getConfig(self::F_USER_MAPPING) : xoctUser::MAP_LOGIN);
 
 		// EVENT REQUEST LEVEL
 		switch (self::getConfig(self::F_REQUEST_COMBINATION_LEVEL)) {

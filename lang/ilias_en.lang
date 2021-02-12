@@ -13,6 +13,10 @@ config_create_scheduled_allowed#:#Activate "Schedule Event(s)"
 config_create_scheduled_allowed_info#:#Warning: Scheduling events requires SWITCHcast API v1.1.0.
 config_editor_link#:#Link to SWITCHcast Video Editor
 config_editor_link_info#:#The placeholder &#123event_id} can be used. E.g.: https://myswitchcast.com/external-url/events/&#123event_id}/editor
+config_common_idp#:#Common IdP
+config_common_idp_info#:#Check if ILIAS and Opencast are using the same identity provider (e.g. Shibboleth or LDAP). This allows for more precise permission checks.
+config_external_download_source#:#External download source
+config_external_download_source_info#:#Enable this option in case of an external web page to show the downloads
 config_oc_studio_allowed#:#Enable Opencast Studio
 config_oc_studio_allowed_info#:#Allow users to access to Opencast Studio from Ilias (Requires Opencast > 8.3)
 config_curl#:#cURL
@@ -25,6 +29,8 @@ config_series#:#Series
 config_licenses#:#Licenses
 config_licenses_info#:#Add new lines with URL#Name
 config_license_info#:#License info
+config_load_table_sync#:#Load event table synchronously
+config_load_table_sync_info#:#If active, the event table will be loaded directly (in one request) instead of indirectly/asynchronously (in two requests) after displaying the page (noticeable by the loading icon). This reduces the overall loading time but increases the time until the page is displayed.
 config_log_level_0#:#Deactivated
 config_log_level_1#:#LOW
 config_log_level_2#:#MEDIUM
@@ -36,8 +42,7 @@ config_role_anonymous#:#Anonymous
 config_role_external_application_member#:#External Application Member
 config_role_ext_application#:#External Application
 config_role_federation_member#:#Federation-Member
-config_role_ivt_email_prefix#:#Prefix for owner role (email is attached)
-config_role_ivt_external_prefix#:#Prefix for owner role (external account is attached)
+config_role_owner_prefix#:#Prefix for owner role (mapping is attached)
 config_role_organisation_prefix#:#Prefix for organization roles (domain of mapping is attached)
 config_role_producer#:#Producer
 config_role_user_prefix#:#Prefix for user roles (mapping is attached)
@@ -87,11 +92,12 @@ config_activate_cache_info#:#Improves the loading time for event lists by storin
 config_use_modals_info#:#When active: the video player will not be opened in a seperate window but in a overlaying "Modal" window.
 config_workflow_info#:#ID of the workflow which will be executed in SWITCHcast after uploading an event.
 config_workflow_unpublish_info#:#ID of the workflow which will be executed in SWITCHcast before deleting an event. Requires API version 1.1.0.
-config_user_mapping_info#:#Userfield in ILIAS which shall be used to identify the user in SWITCHcast.
+config_user_mapping_info#:#Userfield in ILIAS which shall be used to identify the user in SWITCHcast.<br><b>Warning: depending on the ILIAS configuration, users may be able to change their own email address. It is strongly recommended not to use email as mapping in that case.</b>
 config_group_producers_info#:#Users with the permission "Edit Videos" will be assigned to this SWITCHcast group to obtain access to SWITCHcast.
 config_role_user_prefix_info#:#User specific role in SWITCHcast. Is used to grant the user permission on a series in SWITCHcast. Example: ROLE_USER_&#123IDENTIFIER}
 config_role_ivt_external_prefix_info#:#Indicates the owner of an event. This rules doesn't have to exist in SWITCHcast. Example: ROLE_OWNER_&#123IDENTIFIER}
 config_role_ivt_email_prefix_info#:#ROLE_OWNER_EMAIL_&#123IDENTIFIER}
+config_role_owner_prefix_info#:#Indicates the owner of an event. This rules doesn't have to exist in SWITCHcast. Example: ROLE_OWNER_&#123IDENTIFIER}
 config_identifier_to_uppercase#:#User mapping in uppercase
 config_no_metadata#:#Without Metadata
 config_no_metadata_info#:#The metadata don't need to be fetched seperately in the latest API versions, therefore this option will improve the performance. However, this will lead to an error in previous versions.
@@ -128,6 +134,8 @@ config_video_portal_title#:#Title of external Video Portal
 config_video_portal_link#:#Link to external Video Portal
 config_video_portal_link_info#:#Will be displayed in the settings and info tab of a series. &#123series_id} can be used as a placeholder. E.g.: https://myswitchcast-tube.com/cast/channels/&#123series_id}
 config_permission_templates#:#Permission Templates
+config_presenter_mandatory#:#"Presenter" mandatory
+config_presenter_mandatory_info#:#Makes field "Presenter" mandatory for an event upload
 config_upload_chunk_size#:#Upload chunk size (MB)
 config_upload_chunk_size_info#:#The video upload is separated in chunks, whereas one chunk has the here defined size. Increasing the chunk size can improve the upload speed. Default: 20MB
 config_btn_load_parameters#:#Load Parameters via API
@@ -147,6 +155,8 @@ config_start_x_minutes_before_live#:#Enter before start
 config_start_x_minutes_before_live_info#:#Defines how many minutes before the start of the event the player is accessable.
 config_presentation_node#:#URL Presentation Node
 config_presentation_node_info#:#Required to fetch the Live Streams. Example: https://presentation.opencast.my-university.de/
+config_presign_links#:#Presign (experimental)
+config_presign_links_info#:#If active, links will be presigned by Opencast. This may impact the performance. Note that the above configuration is still necessary because links will still have to be signed by the plugin in certain situations.
 config_enable_chat#:#Activate Chat
 config_enable_chat_info#:#Enables an on-screen chat beside the Live Event. This option must additionally be set in the settings of an object to be effective.
 config_ingest_upload#:#Upload via Ingest Nodes
@@ -250,7 +260,7 @@ groups_new_button#:#Create
 groups_new_placeholder#:#Group-Name
 groups_participants_filter#:#Filter
 groups_participants_filter_placeholder#:#First- or Lastname
-groups_participants_header#:#Participants
+groups_participants_header#:#Members
 group_alert_delete_group#:#Do you really want to delete the Group? Assigned Participants will be released.
 group_alert_no_title#:#Please provide a Group-Name
 group_delete_participant#:#Do you really want to delete this Membership?
