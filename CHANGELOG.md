@@ -1,8 +1,26 @@
 # Change Log
 
+## [3.7.4]
+- Fix: disable submit button in modals after submit
+- Change: adjusted lang vars for 'Streaming only' and 'Live Chat' settings
+
+## [3.7.3]
+- Feature/Improvement: support fetching streaming urls from publications instead of building them half-statically
+- Change/Fix: stop setting 1234 as default theme when creating a series (no theme is set anymore) 
+
+## [3.7.2]
+- Fix/Improvement: prevent multiple loading of metadata, improving page component performance
+- Change: use paella player tag 6.5.5 instead of develop branch
+
+## [3.7.1]
+- Fix: fixed player bug by using paella player v6.5.5
+
 ## [3.7.0]
 - Feature: Caching via ILIAS Database (configurable in Plugin configuration: Settings -> Advanced)
 - Fix: live streams didn't work when streaming server redirected
+- Change: added warning to owner role prefix (thanks to reiferschris)
+- Change: bumped path-parse version to 1.0.7
+- Fix: Fixed HLS stream when "Annotation T Sec" is enabled (thanks to mliradelc)
 
 ## [3.6.0]
 - Change: ILIAS 7 compatibility
