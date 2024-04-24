@@ -1,3 +1,4 @@
+This is an archived repo. New repo is here https://github.com/ilub-unibe-ch/opencast
 # ILIAS-Plugin Opencast
 Provided and maintained by fluxlabs.
 
